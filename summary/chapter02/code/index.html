@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Message App</title>
+</head>
+<body>
+    <div id="app">
+        <!-- <ul>
+            <li v-for="message in messages">
+                {{ message.text }} - {{ message.createdAt }}
+                <button @click="deleteMessage(message)">X</button>
+            </li>
+            
+        </ul> -->
+        <messagelist v-bind:items="messages" @delete="deleteMessage"></messagelist>
+
+        <form v-on:submit.prevent="addMessage">
+            <textarea v-model="newMessage" placeholder="Leave a message" v-focus></textarea>
+            <div><button type="submit" v-bind:disabled="addDisabled">Add</button></div>
+        </form>
+    </div>
+    <script src="https://unpkg.com/vue@2.5.13/dist/vue.js"></script>
+    <script type="module">
+        import MessageList from './components/MessageList.js';
+        import './directives/focus.directive.js'
+        import './filters/datetime.filter.js'
+        // import lifecycleLogger from './mixins/lifecycle-logger.mixin.js'
+        import lifecycleLogger from './plugins/lifecycle-logger.plugin.js'
+        
+        Vue.use(lifecycleLogger, {beforeMount: false});
+
+        let vm = new Vue({
+            name: 'Root Vue Instance',
+            el: '#app',
+            mixins: [lifecycleLogger],
+            data: {
+                messages: [],
+                newMessage: ''
+            },
+            components: {
+                messagelist: MessageList,
+            },
+            methods: {
+                addMessage(event) {
+                    if (!this.newMessage) {
+                        return;
+                    }
+                    let now = new Date();
+                    this.messages.push({
+                        id: now.getTime(),
+                        text: this.newMessage,
+                        createdAt: new Date()
+                    });
+
+                    this.newMessage = '';
+                },
+                deleteMessage(message) {
+                    this.messages.splice(this.messages.indexOf(message), 1);
+                }
+            },
+            computed: {
+                addDisabled() {
+                    return this.messages.length >= 10 || this.newMessage.length > 50
+                }
+            }
+        });
+    </script>
+</body>
+</html>
